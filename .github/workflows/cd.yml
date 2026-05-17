@@ -1,0 +1,36 @@
+﻿name: TaskFlow CD
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-images:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - api-gateway
+          - project-service
+          - task-service
+          - resource-service
+          - risk-service
+          - analytics-service
+          - notification-service
+          - storage-service
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./${{ matrix.service }}/Dockerfile
+          push: false
+          tags: taskflow/${{ matrix.service }}:latest

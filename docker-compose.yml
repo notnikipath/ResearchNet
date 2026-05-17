@@ -1,0 +1,190 @@
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: researchnet-api-gateway
+    env_file: .env
+    ports:
+      - "31100:8500"
+    depends_on:
+      - ingestion-service
+      - search-service
+      - citation-service
+      - recommendation-service
+      - visualization-service
+      - user-service
+      - notification-service
+    networks: [researchnet-net]
+
+  ingestion-service:
+    build:
+      context: .
+      dockerfile: ingestion-service/Dockerfile
+    container_name: researchnet-ingestion
+    env_file: .env
+    ports:
+      - "31101:8501"
+    depends_on:
+      - postgres
+      - minio
+      - rabbitmq
+    networks: [researchnet-net]
+
+  search-service:
+    build:
+      context: .
+      dockerfile: search-service/Dockerfile
+    container_name: researchnet-search
+    env_file: .env
+    ports:
+      - "31102:8502"
+    depends_on:
+      - elasticsearch
+      - rabbitmq
+    networks: [researchnet-net]
+
+  citation-service:
+    build:
+      context: .
+      dockerfile: citation-service/Dockerfile
+    container_name: researchnet-citation
+    env_file: .env
+    ports:
+      - "31103:8503"
+    depends_on:
+      - neo4j
+      - postgres
+    networks: [researchnet-net]
+
+  recommendation-service:
+    build:
+      context: .
+      dockerfile: recommendation-service/Dockerfile
+    container_name: researchnet-recommendation
+    env_file: .env
+    ports:
+      - "31104:8504"
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks: [researchnet-net]
+
+  visualization-service:
+    build:
+      context: .
+      dockerfile: visualization-service/Dockerfile
+    container_name: researchnet-visualization
+    env_file: .env
+    ports:
+      - "31105:8505"
+    depends_on:
+      - neo4j
+      - search-service
+    networks: [researchnet-net]
+
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
+    container_name: researchnet-user
+    env_file: .env
+    ports:
+      - "31106:8506"
+    depends_on:
+      - postgres
+    networks: [researchnet-net]
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    container_name: researchnet-notification
+    env_file: .env
+    ports:
+      - "31107:8507"
+    depends_on:
+      - rabbitmq
+    networks: [researchnet-net]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: researchnet-frontend
+    env_file: .env
+    ports:
+      - "31108:5178"
+    depends_on:
+      - api-gateway
+    networks: [researchnet-net]
+
+  postgres:
+    image: postgres:16
+    container_name: researchnet-postgres
+    environment:
+      POSTGRES_DB: researchnet
+      POSTGRES_USER: researchnet
+      POSTGRES_PASSWORD: researchnet
+    ports:
+      - "31010:5432"
+    volumes:
+      - researchnet_postgres_data:/var/lib/postgresql/data
+    networks: [researchnet-net]
+
+  neo4j:
+    image: neo4j:5.24
+    container_name: researchnet-neo4j
+    environment:
+      NEO4J_AUTH: neo4j/researchnet
+    ports:
+      - "57474:7474"
+      - "57687:7687"
+    volumes:
+      - researchnet_neo4j_data:/data
+    networks: [researchnet-net]
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.2
+    container_name: researchnet-elasticsearch
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "59200:9200"
+    volumes:
+      - researchnet_es_data:/usr/share/elasticsearch/data
+    networks: [researchnet-net]
+
+  minio:
+    image: minio/minio:latest
+    container_name: researchnet-minio
+    environment:
+      MINIO_ROOT_USER: researchnet
+      MINIO_ROOT_PASSWORD: researchnet123
+    command: server /data --console-address ":9001"
+    ports:
+      - "59000:9000"
+      - "59001:9001"
+    volumes:
+      - researchnet_minio_data:/data
+    networks: [researchnet-net]
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: researchnet-rabbitmq
+    ports:
+      - "55672:5672"
+      - "55673:15672"
+    networks: [researchnet-net]
+
+networks:
+  researchnet-net:
+    driver: bridge
+
+volumes:
+  researchnet_postgres_data:
+  researchnet_neo4j_data:
+  researchnet_es_data:
+  researchnet_minio_data:

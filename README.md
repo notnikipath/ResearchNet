@@ -46,7 +46,7 @@ ResearchNet is a microservice platform for scientific publication discovery, cit
 ## Local run
 
 ```bash
-cd d:\Шарага\Кинжа2\Task_13_ResearchNet
+cd 'your/project/folder'
 docker compose up --build -d
 ```
 

@@ -323,9 +323,8 @@ button:hover {
 }
 
 .reveal {
-  opacity: 0;
-  transform: translateY(12px);
-  animation: revealUp 0.55s ease forwards;
+  opacity: 1;
+  transform: none;
 }
 
 .delay-1 {

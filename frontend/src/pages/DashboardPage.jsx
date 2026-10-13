@@ -90,7 +90,7 @@ export function DashboardPage() {
       return "loading";
     }
     if (status === "failed") {
-      return "fallback";
+      return "Service unavailable";
     }
     return "live";
   }, [status]);
@@ -116,7 +116,7 @@ export function DashboardPage() {
       <header className="hero reveal">
         <div className="hero-copy">
           <p className="eyebrow">ResearchNet Intelligence Platform</p>
-          <h1>Scientific discovery map: search, citation graph, recommendations, and trend forecasting.</h1>
+          <h1>Research explorer</h1>
           <p className="sub">
             Unified workspace for journals, conferences, preprints, patents, and book chapters. Pipeline quality is tracked
             through ranking metrics and graph analytics.
@@ -139,9 +139,9 @@ export function DashboardPage() {
             <input value={userId} onChange={(event) => setUserId(event.target.value)} placeholder="USR-001" />
           </label>
           <div className="hero-actions">
-            <button onClick={refresh}>Refresh dashboard</button>
+            <button onClick={refresh} disabled={status === "loading"}>Refresh dashboard</button>
           </div>
-          <p className="status-line">Status: {statusLabel}</p>
+          <p className="status-line" role="status" aria-live="polite">Status: {statusLabel}</p>
         </div>
       </header>
 
@@ -172,7 +172,7 @@ export function DashboardPage() {
         />
       </section>
 
-      {error ? <div className="error-banner">{error}</div> : null}
+      {error ? <div className="error-banner" role="alert">{error}</div> : null}
 
       <section className="content-grid">
         <article className="panel panel-featured reveal delay-1">

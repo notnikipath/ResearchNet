@@ -1,4 +1,4 @@
-﻿# ResearchNet
+# ResearchNet
 
 ResearchNet is a microservice platform for scientific publication discovery, citation analytics, knowledge graph exploration, and personalized recommendations.
 
@@ -46,7 +46,7 @@ ResearchNet is a microservice platform for scientific publication discovery, cit
 ## Local run
 
 ```bash
-cd 'your/project/folder'
+cd ResearchNet
 docker compose up --build -d
 ```
 
